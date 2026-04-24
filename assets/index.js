@@ -1,61 +1,35 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const photoInput = document.getElementById('photoInput');
-    const uploadTrigger = document.getElementById('uploadTrigger');
-    const preview = document.getElementById('preview');
-    const placeholderGrid = document.getElementById('placeholderGrid');
-    const submitBtn = document.getElementById('submitBtn');
+const upload_grid = document.querySelector('.upload_grid');
+const upload_uploaded = document.querySelector('.upload_uploaded');
+const upload_uploading = document.querySelector('.upload_uploading');
 
-    // 1. Obsługa kliknięcia w ramkę zdjęcia
-    uploadTrigger.addEventListener('click', () => {
-        photoInput.click();
-    });
+upload_grid.addEventListener('click', () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
 
-    // 2. Podgląd wybranego zdjęcia i zapis do pamięci
-    photoInput.addEventListener('change', function() {
-        const file = this.files[0];
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
         if (file) {
+            // Pokazujemy animację ładowania
+            upload_uploading.style.display = 'block';
+
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Image = e.target.result;
-                preview.src = base64Image;
-                preview.style.display = 'block';
-                placeholderGrid.style.display = 'none';
+            reader.onload = (event) => {
+                const base64Image = event.target.result;
+
+                // Ustawiamy podgląd zdjęcia
+                upload_uploaded.src = base64Image;
+                upload_uploaded.style.display = 'block';
                 
-                // Zapisujemy zdjęcie (Base64) w localStorage
-                localStorage.setItem('userPhoto', base64Image);
-            }
+                // Ukrywamy kółko i przycisk dodawania
+                upload_uploading.style.display = 'none';
+                upload_grid.style.display = 'none';
+
+                // ZAPISUJEMY ZDJĘCIE W PAMIĘCI (żeby nie zniknęło na show.html)
+                localStorage.setItem('user_photo', base64Image);
+            };
             reader.readAsDataURL(file);
         }
-    });
-
-    // 3. Zapisywanie wszystkich danych po kliknięciu "Wejdź"
-    submitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        const userData = {
-            name: document.getElementById('name').value,
-            surname: document.getElementById('surname').value,
-            gender: document.getElementById('gender').value,
-            day: document.getElementById('day').value,
-            month: document.getElementById('month').value,
-            year: document.getElementById('year').value,
-            nationality: document.getElementById('nationality').value,
-            familyName: document.getElementById('familyName').value,
-            address1: document.getElementById('address1').value,
-            address2: document.getElementById('address2').value,
-            city: document.getElementById('city').value
-        };
-
-        // Sprawdzanie czy imię i nazwisko są wpisane
-        if (userData.name === "" || userData.surname === "") {
-            alert("Wypełnij imię i nazwisko!");
-            return;
-        }
-
-        // Zapisujemy obiekt z danymi jako tekst JSON
-        localStorage.setItem('userData', JSON.stringify(userData));
-
-        // PRZEKIEROWANIE (zmień 'dowod.html' na nazwę swojego pliku z dokumentem)
-        window.location.href = 'dowod.html'; 
-    });
+    };
+    fileInput.click();
 });
