@@ -1,35 +1,143 @@
-const upload_grid = document.querySelector('.upload_grid');
-const upload_uploaded = document.querySelector('.upload_uploaded');
-const upload_uploading = document.querySelector('.upload_uploading');
+var params = new URLSearchParams(window.location.search);
+var id = 0;
+var sex = "m";
 
-upload_grid.addEventListener('click', () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
+// Usunięto blokadę tokena dla celów działania na Vercelu
+var upload = document.querySelector(".upload");
 
-    fileInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Pokazujemy animację ładowania
-            upload_uploading.style.display = 'block';
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64Image = event.target.result;
-
-                // Ustawiamy podgląd zdjęcia
-                upload_uploaded.src = base64Image;
-                upload_uploaded.style.display = 'block';
-                
-                // Ukrywamy kółko i przycisk dodawania
-                upload_uploading.style.display = 'none';
-                upload_grid.style.display = 'none';
-
-                // ZAPISUJEMY ZDJĘCIE W PAMIĘCI (żeby nie zniknęło na show.html)
-                localStorage.setItem('user_photo', base64Image);
-            };
-            reader.readAsDataURL(file);
+// Obsługa otwierania listy Płeć
+var selector = document.querySelector(".selector_box");
+if (selector) {
+    selector.addEventListener('click', () => {
+        var classes = selector.classList;
+        if (classes.contains("selector_open")){
+            classes.remove("selector_open")
+        }else{
+            classes.add("selector_open")
         }
-    };
-    fileInput.click();
+    })
+}
+
+document.querySelectorAll(".date_input").forEach((element) => {
+    element.addEventListener('click', () => {
+        document.querySelector(".date").classList.remove("error_shown")
+    })
+})
+
+document.querySelectorAll(".selector_option").forEach((option) => {
+    option.addEventListener('click', () => {
+        setSelectorOption(option.id)
+    })
+})
+
+function setSelectorOption(id){
+    sex = id;
+    document.querySelectorAll(".selector_option").forEach((option) => {
+        if (option.id === id){
+            document.querySelector(".selected_text").innerHTML = option.innerHTML;
+        }
+    })
+}
+
+var imageInput = document.createElement("input");
+imageInput.type = "file";
+imageInput.accept = ".jpeg,.png,.gif";
+
+document.querySelectorAll(".input_holder").forEach((element) => {
+    var input = element.querySelector(".input");
+    if (input) {
+        input.addEventListener('click', () => {
+            element.classList.remove("error_shown");
+        })
+    }
 });
+
+if (upload) {
+    upload.addEventListener('click', () => {
+        imageInput.click();
+        upload.classList.remove("error_shown")
+    });
+}
+
+imageInput.addEventListener('change', (event) => {
+    upload.classList.remove("upload_loaded");
+    upload.classList.add("upload_loading");
+    upload.removeAttribute("selected")
+
+    var file = imageInput.files[0];
+    var reader = new FileReader();
+    reader.onload = (event) => {
+        var url = event.target.result;
+        upload.classList.remove("error_shown")
+        upload.classList.add("upload_loaded");
+        upload.classList.remove("upload_loading");
+        setUpload(url);
+    }
+    reader.readAsDataURL(file);
+})
+
+function setUpload(url){
+    upload.setAttribute("selected", url);
+    upload.querySelector(".upload_uploaded").src = url;
+}
+
+// GŁÓWNA NAPRAWA PRZYCISKU "WEJDŹ"
+var submitBtn = document.querySelector(".create") || document.querySelector(".go");
+if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+        var empty = [];
+        var data = {};
+
+        data["sex"] = sex;
+        
+        // Sprawdzanie zdjęcia
+        if (!upload.hasAttribute("selected")){
+            empty.push(upload);
+            upload.classList.add("error_shown")
+        } else {
+            data['image'] = upload.getAttribute("selected");
+        }
+
+        // Sprawdzanie daty
+        var dateEmpty = false;
+        document.querySelectorAll(".date_input").forEach((element) => {
+            if (isEmpty(element.value)){
+                dateEmpty = true;
+            } else {
+                data[element.id] = element.value
+            }
+        });
+
+        if (dateEmpty){
+            var dateElement = document.querySelector(".date");
+            dateElement.classList.add("error_shown");
+            empty.push(dateElement);
+        }
+
+        // Sprawdzanie reszty pól
+        document.querySelectorAll(".input_holder").forEach((element) => {
+            var input = element.querySelector(".input");
+            if (isEmpty(input.value)){
+                empty.push(element);
+                element.classList.add("error_shown");
+            } else {
+                data[input.id] = input.value
+            }
+        });
+
+        if (empty.length != 0){
+            empty[0].scrollIntoView();
+        } else {
+            // Zapisujemy wszystko do localStorage zamiast wysyłać do bazy
+            localStorage.setItem('userData', JSON.stringify(data));
+            
+            // Przekierowanie na show.html (zamiast dashboard)
+            window.location.href = 'show.html';
+        }
+    });
+}
+
+function isEmpty(value){
+    let pattern = /^\s*$/
+    return pattern.test(value);
+}
