@@ -1,81 +1,40 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="assets/index.css">
-    <link rel="icon" type="image/x-icon" href="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4=w240-h480-rw">
-    <title>mObywatel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no">
-</head>
-<body>
-    <img src="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4" class="logo">
-    <p class="logo_text">cwelObywatel 2.0</p>
+<script>
+// Ta funkcja nadpisze błąd z kółkiem i obsłuży zdjęcie lokalnie
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.querySelector('.upload_grid');
+    const uploadedImg = document.querySelector('.upload_uploaded');
+    const loadingCircle = document.querySelector('.upload_uploading');
 
-    <p class="warning">Wypełnij dane poniżej</p>
-
-    <div class="upload" id="uploadTrigger">
-        <p class="error" id="photoError">Zdjęcie jest wymagane</p>
-        <img class="upload_uploaded" id="preview" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
-        <div class="upload_uploading"></div>
-        <div class="upload_grid" id="placeholderGrid">
-            <img class="upload_image" src="./assets/images/image-up.svg">
-            <p class="upload_text">Dodaj zdjęcie</p>
-        </div>
-        <input type="file" id="photoInput" accept="image/*" style="display: none;">
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="name" class="input" placeholder=" ">
-        <span class="placeholder">Imię (imiona)</span>
-    </div>
- 
-    <div class="input_holder">
-        <input type="text" id="surname" class="input" placeholder=" ">
-        <span class="placeholder">Nazwisko</span>
-    </div>
-
-    <p class="top_info">Płeć</p>
-    <select id="gender" class="input" style="margin-bottom: 20px; appearance: none;">
-        <option value="Mężczyzna">Mężczyzna</option>
-        <option value="Kobieta">Kobieta</option>
-    </select>
-
-    <div class="date">
-        <p class="top_info">Data urodzenia</p>
-        <div class="date_grid">
-            <input class="date_input" id="day" placeholder="DD" type="number">
-            <input class="date_input" id="month" placeholder="MM" type="number">
-            <input class="date_input" id="year" placeholder="YYYY" type="number">
-        </div>
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="nationality" class="input" placeholder=" ">
-        <span class="placeholder">Obywatelstwo</span>
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="familyName" class="input" placeholder=" ">
-        <span class="placeholder">Nazwisko rodowe</span>
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="address1" class="input" placeholder=" ">
-        <span class="placeholder">Ulica i numer domu</span>
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="address2" class="input" placeholder=" ">
-        <span class="placeholder">Kod pocztowy</span>
-    </div>
-
-    <div class="input_holder">
-        <input type="text" id="city" class="input" placeholder=" ">
-        <span class="placeholder">Miasto</span>
-    </div>
-
-    <a class="go" id="submitBtn" style="cursor: pointer;">wejdź</a>
-
-    <script src="assets/index.js"></script>
-</body>
-</html>
+    if (grid) {
+        grid.onclick = (e) => {
+            e.preventDefault();
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    loadingCircle.style.display = 'block'; // Kółko się pojawia
+                    const reader = new FileReader();
+                    reader.onload = (f) => {
+                        // Podmieniamy obrazek na ten wybrany
+                        if(uploadedImg) {
+                            uploadedImg.src = f.target.result;
+                            uploadedImg.style.display = 'block';
+                        }
+                        // Chowamy kółko i napis "dodaj"
+                        loadingCircle.style.display = 'none';
+                        grid.style.display = 'none';
+                        
+                        // Zapisujemy, żeby zdjęcie przeszło na stronę show.html
+                        localStorage.setItem('userPhoto', f.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+    }
+});
+</script>
