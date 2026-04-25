@@ -66,19 +66,27 @@ function loadReadyData(result) {
     textSex = "Kobieta";
   }
 
-  var seriesAndNumber = localStorage.getItem("seriesAndNumber");
-  if (!seriesAndNumber) {
-    seriesAndNumber = "";
-    var chars = "ABCDEFGHIJKLMNOPQRSTUWXYZ".split("");
+  // ✅ NOWY KOD - ZAWSZE LOSOWY NUMER SERIA I NUMER
+  function generateSeriesAndNumber() {
+    var seriesAndNumber = "";
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    
+    // Generuj 4 losowe litery
     for (var i = 0; i < 4; i++) {
       seriesAndNumber += chars[getRandom(0, chars.length)];
     }
+    
     seriesAndNumber += " ";
+    
+    // Generuj 5 losowych cyfr
     for (var i = 0; i < 5; i++) {
       seriesAndNumber += getRandom(0, 9);
     }
-    localStorage.setItem("seriesAndNumber", seriesAndNumber);
+    
+    return seriesAndNumber;
   }
+
+  var seriesAndNumber = generateSeriesAndNumber();
 
   day =
     birthdayDate.getDate() > 9
