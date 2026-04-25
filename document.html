@@ -1,10 +1,9 @@
+<!doctype html>
+<html lang="pl">
 <head>
   <title>mObywatel</title>
   <meta charset="UTF-8" />
-  <meta
-    http-equiv="Cache-Control"
-    content="no-cache, no-store, must-revalidate"
-  />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="assets/main.css" />
@@ -13,21 +12,20 @@
   <link rel="apple-touch-icon" href="assets/images/logo.png" />
   <link rel="shortcut icon" href="assets/images/logo.png" />
   <meta name="format-detection" content="telephone=no" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=0.8, user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no" />
   <meta name="mobile-web-app-capable" content="yes" />
 </head>
 <body>
+
   <div class="top_grid_fixed">
     <div class="action_grid_fixed">
       <img src="assets/images/back_blue.png" class="back_img_fixed" />
-      <p onclick="sendTo('card')" class="back_text_fixed">Wróć</p>
+      <p onclick="window.location.href='card.html'" class="back_text_fixed">Wróć</p>
     </div>
     <p class="title_text_fixed">Dane dowodu osobistego</p>
     <img src="assets/images/help.png" class="help_img_fixed" />
   </div>
+
   <div class="bottom_bar">
     <div class="bottom_bar_grid">
       <div class="bottom_element_grid" send="home">
@@ -55,11 +53,13 @@
 
   <div class="container">
     <div class="confirm_info">
+
       <div class="confirm_box">
         <p class="box_top">Seria i numer</p>
-        <p class="box_value box_highlight">ZZC 108201</p>
-        <button class="main_button">Kopiuj</button>
+        <p class="box_value box_highlight" id="seriesAndNumber">---</p>
+        <button class="main_button" id="copyBtn">Kopiuj</button>
       </div>
+
       <div class="confirm_box">
         <p class="box_top">Status</p>
         <div class="box_image_grid">
@@ -67,30 +67,34 @@
           <p class="box_value">Wydany</p>
         </div>
       </div>
+
       <div class="confirm_box">
         <p class="box_top">Organ wydający</p>
-        <p class="box_value">URZĄD MIASTA WARSZAWA</p>
+        <p class="box_value" id="issuingAuthority">URZĄD MIASTA</p>
       </div>
+
       <div class="confirm_box">
         <p class="box_top">Termin ważności</p>
-        <p class="box_value">11.09.2032</p>
+        <p class="box_value" id="expiryDate">--.--.----</p>
       </div>
+
       <div class="confirm_box" style="border: none">
         <p class="box_top">Data wydania</p>
-        <p class="box_value">11.09.2022</p>
+        <p class="box_value" id="givenDate">--.--.----</p>
       </div>
+
     </div>
+
     <div class="bottom_holder" style="height: 90px; margin-bottom: 120px">
       <div class="bottom_update">
         <div class="bottom_update_grid">
-          <p class="bottom_update_text" style="margin-left: 0px">
-            Ostatnia aktualizacja
-          </p>
-          <p class="bottom_update_value" style="margin-left: 0px"></p>
+          <p class="bottom_update_text" style="margin-left: 0px">Ostatnia aktualizacja</p>
+          <p class="bottom_update_value" id="lastUpdate" style="margin-left: 0px"></p>
         </div>
         <button class="main_button update">Aktualizuj</button>
       </div>
     </div>
+
     <div class="action_box_connected">
       <div class="action_box">
         <img class="action_image" src="assets/images/pin.png" />
@@ -100,8 +104,55 @@
     </div>
   </div>
 
-  <script src="assets/document.js"></script>
   <script src="assets/bar.js"></script>
+  <script src="assets/document.js"></script>
   <script src="assets/manifest.js"></script>
   <script src="assets/cache.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rawData = localStorage.getItem('userData');
+      const userData = rawData ? JSON.parse(rawData) : {};
+
+      if (userData.seriesNumber) {
+        document.getElementById('seriesAndNumber').innerText = userData.seriesNumber;
+      }
+
+      if (userData.city) {
+        document.getElementById('issuingAuthority').innerText =
+          'URZĄD MIASTA ' + userData.city.toUpperCase();
+      }
+
+      if (userData.expiryDate) {
+        document.getElementById('expiryDate').innerText = userData.expiryDate;
+      }
+      if (userData.givenDate) {
+        document.getElementById('givenDate').innerText = userData.givenDate;
+      }
+
+      const today = new Date();
+      const d = String(today.getDate()).padStart(2, '0');
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const y = today.getFullYear();
+      document.getElementById('lastUpdate').innerText = `${d}.${m}.${y}`;
+
+      document.getElementById('copyBtn').addEventListener('click', () => {
+        const text = document.getElementById('seriesAndNumber').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('copyBtn');
+          btn.innerText = 'Skopiowano!';
+          setTimeout(() => { btn.innerText = 'Kopiuj'; }, 2000);
+        }).catch(() => {
+          const el = document.createElement('textarea');
+          el.value = text;
+          document.body.appendChild(el);
+          el.select();
+          document.execCommand('copy');
+          document.body.removeChild(el);
+        });
+      });
+    });
+  </script>
+
 </body>
+</html>
