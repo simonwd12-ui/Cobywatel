@@ -112,7 +112,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const rawData = localStorage.getItem('userData');
-      const userData = rawData ? JSON.parse(rawData) : {};
+      let userData = rawData ? JSON.parse(rawData) : {};
 
       if (userData.seriesNumber) {
         document.getElementById('seriesAndNumber').innerText = userData.seriesNumber;
@@ -121,6 +121,24 @@
       if (userData.city) {
         document.getElementById('issuingAuthority').innerText =
           'URZĄD MIASTA ' + userData.city.toUpperCase();
+      }
+
+      function formatDate(date) {
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}.${m}.${y}`;
+      }
+
+      if (!userData.givenDate) {
+        const issued = new Date();
+        const yearsAgo = Math.floor(Math.random() * 9) + 1;
+        issued.setFullYear(issued.getFullYear() - yearsAgo);
+        const expiry = new Date(issued);
+        expiry.setFullYear(expiry.getFullYear() + 10);
+        userData.givenDate  = formatDate(issued);
+        userData.expiryDate = formatDate(expiry);
+        localStorage.setItem('userData', JSON.stringify(userData));
       }
 
       if (userData.expiryDate) {
