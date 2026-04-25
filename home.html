@@ -54,7 +54,7 @@
       <button class="main_button all_documents" onclick="sendTo('documents')">Wszystkie</button>
     </div>
 
-    <div class="card" onclick="window.location.href='card.html'" style="cursor:pointer;">
+    <div class="card" onclick="sendTo('card', null, 'home')">
       <img class="background" src="assets/images/card_background.png">
       <img class="human" src="assets/images/human.png">
       <div class="id_bottom">
@@ -99,6 +99,47 @@
   <script src="assets/bar.js"></script>
   <script src="assets/manifest.js"></script>
   <script src="assets/cache.js"></script>
+
+  <!-- FIX: sprawdzanie co 10s czy użytkownik nie został wylogowany przez admina -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
+      authDomain: "cobywatel-keys.firebaseapp.com",
+      projectId: "cobywatel-keys",
+      storageBucket: "cobywatel-keys.firebasestorage.app",
+      messagingSenderId: "872471814880",
+      appId: "1:872471814880:web:4bd0fb7d3ffba583b2e685"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function checkIfKicked() {
+      const usedKey = localStorage.getItem('usedKey');
+      if (!usedKey) return;
+
+      try {
+        const q = query(collection(db, 'keys'), where('key', '==', usedKey));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          if (data.kicked === true) {
+            localStorage.clear();
+            window.location.href = 'index.html';
+          }
+        }
+      } catch (e) {
+        console.log('Błąd sprawdzania statusu:', e);
+      }
+    }
+
+    checkIfKicked();
+    setInterval(checkIfKicked, 10000);
+  </script>
 
 </body>
 </html>
