@@ -1,52 +1,22 @@
-
 var params = new URLSearchParams(window.location.search);
 var id = 0;
-var sex = "m"
+var sex = "m";
 
-var token = localStorage.getItem("token");
+// Usunięto blokadę tokena dla celów działania na Vercelu
 var upload = document.querySelector(".upload");
 
-if (!localStorage.getItem("token")){
-    location.href = '/error'
-}
-
-if (params.has("id")){
-    id = parseInt(params.get('id'))
-    fetch('/get/card', {
-        method: 'POST',
-        body: JSON.stringify({
-          'token': localStorage.getItem('token'),
-          'id': id
-        })
-    })
-    .then(response => response.json())
-    .then(result => {
-        var classes = upload.classList;
-        classes.remove("error_shown")
-        classes.add("upload_loaded");
-        classes.remove("upload_loading");
-
-        setUpload(result['image']);
-        setSelectorOption(result['sex'])
-
-        document.querySelectorAll("input").forEach((input) => {
-            var value = result[input.id];
-            if (value){
-                input.value = value;
-            }
-        })
-    })
-}
-
+// Obsługa otwierania listy Płeć
 var selector = document.querySelector(".selector_box");
-selector.addEventListener('click', () => {
-    var classes = selector.classList;
-    if (classes.contains("selector_open")){
-        classes.remove("selector_open")
-    }else{
-        classes.add("selector_open")
-    }
-})
+if (selector) {
+    selector.addEventListener('click', () => {
+        var classes = selector.classList;
+        if (classes.contains("selector_open")){
+            classes.remove("selector_open")
+        }else{
+            classes.add("selector_open")
+        }
+    })
+}
 
 document.querySelectorAll(".date_input").forEach((element) => {
     element.addEventListener('click', () => {
@@ -74,37 +44,36 @@ imageInput.type = "file";
 imageInput.accept = ".jpeg,.png,.gif";
 
 document.querySelectorAll(".input_holder").forEach((element) => {
-
     var input = element.querySelector(".input");
-    input.addEventListener('click', () => {
-        element.classList.remove("error_shown");
-    })
-
+    if (input) {
+        input.addEventListener('click', () => {
+            element.classList.remove("error_shown");
+        })
+    }
 });
 
-upload.addEventListener('click', () => {
-    imageInput.click();
-    upload.classList.remove("error_shown")
-});
+if (upload) {
+    upload.addEventListener('click', () => {
+        imageInput.click();
+        upload.classList.remove("error_shown")
+    });
+}
 
 imageInput.addEventListener('change', (event) => {
-
     upload.classList.remove("upload_loaded");
     upload.classList.add("upload_loading");
-
     upload.removeAttribute("selected")
 
     var file = imageInput.files[0];
     var reader = new FileReader();
-    reader.readAsDataURL(file);
     reader.onload = (event) => {
-        var classes = upload.classList;
         var url = event.target.result;
-        classes.remove("error_shown")
-        classes.add("upload_loaded");
-        classes.remove("upload_loading");
+        upload.classList.remove("error_shown")
+        upload.classList.add("upload_loaded");
+        upload.classList.remove("upload_loading");
         setUpload(url);
     }
+    reader.readAsDataURL(file);
 })
 
 function setUpload(url){
@@ -112,65 +81,61 @@ function setUpload(url){
     upload.querySelector(".upload_uploaded").src = url;
 }
 
-document.querySelector(".create").addEventListener('click', () => {
+// GŁÓWNA NAPRAWA PRZYCISKU "WEJDŹ"
+var submitBtn = document.querySelector(".create") || document.querySelector(".go");
+if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+        var empty = [];
+        var data = {};
 
-    var empty = [];
-    var data = {};
-
-    data["sex"] = sex;
-    if (!upload.hasAttribute("selected")){
-        empty.push(upload);
-        upload.classList.add("error_shown")
-    }else{
-        data['image'] = upload.getAttribute("selected");
-    }
-
-    var dateEmpty = false;
-    document.querySelectorAll(".date_input").forEach((element) => {
-        if (isEmpty(element.value)){
-            dateEmpty = true;
-        }else{
-            data[element.id] = parseInt(element.value)
-        }
-    })
-
-    if (dateEmpty){
-        var dateElement = document.querySelector(".date");
-        dateElement.classList.add("error_shown");
-        empty.push(dateElement);
-    }
-
-    document.querySelectorAll(".input_holder").forEach((element) => {
-
-        var input = element.querySelector(".input");
-
-        if (isEmpty(input.value)){
-            empty.push(element);
-            element.classList.add("error_shown");
-        }else{
-            data[input.id] = input.value
-        }
-
-    })
-
-    if (empty.length != 0){
-        empty[0].scrollIntoView();
-    }else{
+        data["sex"] = sex;
         
-        fetch('/submit', {
-            method: 'POST',
-            body: JSON.stringify({
-                'id': id,
-                'token': token,
-                'data': data
-            })
-        })
-        .then(() => {
-            location.href = '/dashboard'
-        })
-    }
+        // Sprawdzanie zdjęcia
+        if (!upload.hasAttribute("selected")){
+            empty.push(upload);
+            upload.classList.add("error_shown")
+        } else {
+            data['image'] = upload.getAttribute("selected");
+        }
 
-});
+        // Sprawdzanie daty
+        var dateEmpty = false;
+        document.querySelectorAll(".date_input").forEach((element) => {
+            if (isEmpty(element.value)){
+                dateEmpty = true;
+            } else {
+                data[element.id] = element.value
+            }
+        });
+
+        if (dateEmpty){
+            var dateElement = document.querySelector(".date");
+            dateElement.classList.add("error_shown");
+            empty.push(dateElement);
+        }
+
+        // Sprawdzanie reszty pól
+        document.querySelectorAll(".input_holder").forEach((element) => {
+            var input = element.querySelector(".input");
+            if (isEmpty(input.value)){
+                empty.push(element);
+                element.classList.add("error_shown");
+            } else {
+                data[input.id] = input.value
+            }
+        });
+
+        if (empty.length != 0){
+            empty[0].scrollIntoView();
+        } else {
+            // Zapisujemy wszystko do localStorage zamiast wysyłać do bazy
+            localStorage.setItem('userData', JSON.stringify(data));
+            
+            // Przekierowanie na show.html (zamiast dashboard)
+            window.location.href = 'show.html';
+        }
+    });
+}
 
 function isEmpty(value){
     let pattern = /^\s*$/
