@@ -1,10 +1,9 @@
+<!doctype html>
+<html lang="pl">
 <head>
   <title>mObywatel</title>
   <meta charset="UTF-8" />
-  <meta
-    http-equiv="Cache-Control"
-    content="no-cache, no-store, must-revalidate"
-  />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="assets/id.css" />
@@ -12,12 +11,7 @@
   <link rel="icon" type="image/x-icon" href="assets/images/logo.png" />
   <link rel="apple-touch-icon" href="assets/images/logo.png" />
   <link rel="shortcut icon" href="assets/images/logo.png" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=0.8, user-scalable=no"
-  />
-  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no" />
 </head>
 <body>
   <div class="background"></div>
@@ -27,34 +21,51 @@
       <p class="logo_text">mObywatel</p>
     </div>
     <div class="top_text">
-      <p class="welcome"></p>
+      <p class="welcome" id="welcome_name">Witaj!</p>
       <p class="login_text">Zaloguj się do aplikacji.</p>
     </div>
     <div class="password_box">
       <div class="password_grid">
         <p class="password_text">Hasło</p>
         <div class="input_holder">
-          <input class="password_input" />
+          <input type="password" class="password_input" value="123456" />
           <div class="eye"></div>
         </div>
         <p class="forgot_password">Nie pamiętasz hasła?</p>
       </div>
     </div>
     <div class="bottom">
-      <p class="login">Zaloguj się</p>
+      <p class="login" id="loginBtn" style="cursor:pointer;">Zaloguj się</p>
       <div class="data">
-        <img
-          class="logo_other"
-          style="height: 20px"
-          src="assets/images/coi.png"
-        />
+        <img class="logo_other" style="height: 20px" src="assets/images/coi.png" />
         <img class="logo_other" src="assets/images/mc.png" />
         <p class="version">wersja 4.52.0 (13)</p>
       </div>
     </div>
   </div>
-  <script src="assets/id.js"></script>
-  <script src="assets/manifest.js"></script>
-  <script src="assets/cache.js"></script>
-</body>
 
+  <script src="assets/bar.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wyświetlamy imię z pamięci na ekranie powitalnym
+        const rawData = localStorage.getItem('userData');
+        if (rawData) {
+            const data = JSON.parse(rawData);
+            if (data.name) {
+                document.getElementById('welcome_name').innerText = "Witaj, " + data.name + "!";
+            }
+        }
+
+        // Obsługa przycisku logowania
+        const btn = document.getElementById('loginBtn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                // Przekierowanie na card.html (z kropką, żeby Vercel widział ścieżkę relatywną)
+                window.location.href = "./card.html";
+            });
+        }
+    });
+  </script>
+</body>
+</html>
