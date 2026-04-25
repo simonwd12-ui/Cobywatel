@@ -14,10 +14,12 @@
       justify-content: center;
       min-height: 100vh;
       padding: 40px 20px;
+      background: #f5f6fa;
     }
     .key-logo {
       width: 80px;
       height: 80px;
+      border-radius: 18px;
       margin-bottom: 16px;
     }
     .key-title {
@@ -25,12 +27,14 @@
       font-weight: bold;
       color: #1a1a2e;
       margin-bottom: 8px;
+      font-family: Arial, sans-serif;
     }
     .key-subtitle {
       font-size: 14px;
       color: #888;
       margin-bottom: 32px;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
     .key-input {
       width: 100%;
@@ -44,6 +48,7 @@
       text-transform: uppercase;
       margin-bottom: 16px;
       outline: none;
+      font-family: Arial, sans-serif;
     }
     .key-input:focus { border-color: #1a56db; }
     .key-btn {
@@ -57,6 +62,7 @@
       font-size: 17px;
       font-weight: bold;
       cursor: pointer;
+      font-family: Arial, sans-serif;
     }
     .key-btn:disabled { background: #aaa; cursor: not-allowed; }
     .key-error {
@@ -64,277 +70,246 @@
       font-size: 14px;
       margin-top: 12px;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
     .key-loading {
       color: #888;
       font-size: 14px;
       margin-top: 12px;
+      font-family: Arial, sans-serif;
     }
   </style>
 </head>
 <body>
 
-<!-- EKRAN KLUCZA -->
-<div class="key-screen" id="keyScreen">
-  <img class="key-logo" src="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4">
-  <p class="key-title">CObywatel 2.0</p>
-  <p class="key-subtitle">Wpisz klucz dostępu aby kontynuować</p>
-  <input class="key-input" id="keyInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" />
-  <button class="key-btn" id="keyBtn" onclick="checkKey()">Weryfikuj klucz</button>
-  <p class="key-error" id="keyError"></p>
-  <p class="key-loading" id="keyLoading"></p>
-</div>
+  <!-- EKRAN KLUCZA -->
+  <div class="key-screen" id="keyScreen">
+    <img class="key-logo" src="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4">
+    <p class="key-title">CObywatel 2.0</p>
+    <p class="key-subtitle">Wpisz klucz dostępu aby kontynuować</p>
+    <input class="key-input" id="keyInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" />
+    <button class="key-btn" id="keyBtn" onclick="checkKey()">Weryfikuj klucz</button>
+    <p class="key-error" id="keyError"></p>
+    <p class="key-loading" id="keyLoading"></p>
+  </div>
 
-<!-- FORMULARZ (ukryty na start) -->
-<div id="formScreen" style="display:none;">
-  <img src="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4" class="logo">
-  <p class="logo_text">CObywatel 2.0</p>
-  <p class="warning">Coded by Simonxx^_^</p>
+  <!-- FORMULARZ -->
+  <div id="formScreen" style="display:none;">
+    <img src="https://play-lh.googleusercontent.com/_TNbiYKasPy_isTSEg2_UEzVaev4F8fO2lLunsHJ8_Ux2g3OzkSZyzpqvJG1woSj-WD4" class="logo">
+    <p class="logo_text">CObywatel 2.0</p>
+    <p class="warning">Coded by Simonxx^_^</p>
 
-  <div class="guide_holder">
-    <div class="top_holder">
-      <p class="guide_title">Instrukcja</p>
-      <img class="arrow" src="./assets/images/arrow.png">
+    <div class="guide_holder">
+      <div class="top_holder">
+        <p class="guide_title">Instrukcja</p>
+        <img class="arrow" src="./assets/images/arrow.png">
+      </div>
+      <div class="guide_text">
+        <span style="font-size: 17px; font-weight: 500;">Dla systemu IOS:</span><br>
+        <ul>
+          <li>Upewnij się, że używasz przeglądarki Safari</li>
+          <li>Uzupełnij dane i kliknij wejdź</li>
+          <li>Naciśnij udostępnij -> Do Ekranu głównego</li>
+        </ul>
+        <span style="font-size: 17px; font-weight: 500;">Dla systemu Android:</span>
+        <ul>
+          <li>Upewnij się, że używasz przeglądarki google lub chrome</li>
+          <li>Uzupełnij dane i kliknij wejdź</li>
+          <li>Naciśnij 3 kropki -> Dodaj do ekranu głównego</li>
+        </ul>
+      </div>
     </div>
-    <div class="guide_text">
-      <span style="font-size: 17px; font-weight: 500;">Dla systemu IOS:</span><br>
-      <ul>
-        <li>Upewnij się, że używasz przeglądarki Safari</li>
-        <li>Uzupełnij dane i kliknij wejdź</li>
-        <li>Naciśnij udostępnij -> Do Ekranu głównego</li>
-      </ul>
-      <span style="font-size: 17px; font-weight: 500;">Dla systemu Android:</span>
-      <ul>
-        <li>Upewnij się, że używasz przeglądarki google lub chrome</li>
-        <li>Uzupełnij dane i kliknij wejdź</li>
-        <li>Naciśnij 3 kropki -> Dodaj do ekranu głównego</li>
-      </ul>
+
+    <div class="upload">
+      <p class="error">To pole jest wymagane</p>
+      <img class="upload_uploaded">
+      <div class="upload_uploading"></div>
+      <div class="upload_grid">
+        <img class="upload_image" src="./assets/images/image-up.svg">
+        <p class="upload_text">Dodaj zdjęcie</p>
+      </div>
     </div>
-  </div>
 
-  <div class="upload">
-    <p class="error">To pole jest wymagane</p>
-    <img class="upload_uploaded">
-    <div class="upload_uploading"></div>
-    <div class="upload_grid">
-      <img class="upload_image" src="./assets/images/image-up.svg">
-      <p class="upload_text">Dodaj zdjęcie</p>
+    <div class="input_holder">
+      <input type="text" id="name" class="input" placeholder="">
+      <span class="placeholder">Imię (imiona)</span>
+      <p class="error">To pole jest wymagane</p>
     </div>
-  </div>
-
-  <div class="input_holder">
-    <input type="text" id="name" class="input" placeholder="">
-    <span class="placeholder">Imię (imiona)</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="surname" class="input" placeholder="">
-    <span class="placeholder">Nazwisko</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-
-  <p class="top_info">Płeć</p>
-  <div class="selector_box">
-    <div class="selected_grid">
-      <p class="selector_text selected_text">Mężczyzna</p>
-      <img class="selected_arrow" src="./assets/images/right_arrow.png">
+    <div class="input_holder">
+      <input type="text" id="surname" class="input" placeholder="">
+      <span class="placeholder">Nazwisko</span>
+      <p class="error">To pole jest wymagane</p>
     </div>
-    <div class="option_box">
-      <div class="selector_option" id="m">Mężczyzna</div>
-      <div class="selector_option" id="k">Kobieta</div>
+
+    <p class="top_info">Płeć</p>
+    <div class="selector_box">
+      <div class="selected_grid">
+        <p class="selector_text selected_text">Mężczyzna</p>
+        <img class="selected_arrow" src="./assets/images/right_arrow.png">
+      </div>
+      <div class="option_box">
+        <div class="selector_option" id="m">Mężczyzna</div>
+        <div class="selector_option" id="k">Kobieta</div>
+      </div>
     </div>
-  </div>
 
-  <div class="date">
-    <p class="top_info">Data urodzenia</p>
-    <div class="date_grid">
-      <input class="date_input" id="day" placeholder="DD" type="number"></input>
-      <input class="date_input" id="month" placeholder="MM" type="number"></input>
-      <input class="date_input" id="year" placeholder="YYYY" type="number"></input>
+    <div class="date">
+      <p class="top_info">Data urodzenia</p>
+      <div class="date_grid">
+        <input class="date_input" id="day" placeholder="DD" type="number">
+        <input class="date_input" id="month" placeholder="MM" type="number">
+        <input class="date_input" id="year" placeholder="YYYY" type="number">
+      </div>
+      <p class="error">Wprowadź prawidłową datę</p>
     </div>
-    <p class="error">Wprowadź prawidłową datę</p>
+
+    <div class="input_holder">
+      <input type="text" id="nationality" class="input" placeholder="">
+      <span class="placeholder">Obywatelstwo</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="familyName" class="input" placeholder="">
+      <span class="placeholder">Nazwisko rodowe</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="fathersFamilyName" class="input" placeholder="">
+      <span class="placeholder">Nazwisko rodowe ojca</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="mothersFamilyName" class="input" placeholder="">
+      <span class="placeholder">Nazwisko rodowe matki</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+
+    <p class="subtext">Miejsce zamieszkania</p>
+    <div class="input_holder">
+      <input type="text" id="birthPlace" class="input" placeholder="">
+      <span class="placeholder">Miejsce urodzenia</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="countryOfBirth" class="input" placeholder="">
+      <span class="placeholder">Kraj urodzenia</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="address1" class="input" placeholder="">
+      <span class="placeholder">Ulica i numer domu</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="address2" class="input" placeholder="">
+      <span class="placeholder">Kod pocztowy</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+    <div class="input_holder">
+      <input type="text" id="city" class="input" placeholder="">
+      <span class="placeholder">Miasto</span>
+      <p class="error">To pole jest wymagane</p>
+    </div>
+
+    <a class="go">wejdź</a>
   </div>
 
-  <div class="input_holder">
-    <input type="text" id="nationality" class="input" placeholder="">
-    <span class="placeholder">Obywatelstwo</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="familyName" class="input" placeholder="">
-    <span class="placeholder">Nazwisko rodowe</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="fathersFamilyName" class="input" placeholder="">
-    <span class="placeholder">Nazwisko rodowe ojca</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="mothersFamilyName" class="input" placeholder="">
-    <span class="placeholder">Nazwisko rodowe matki</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
+  <!-- Firebase: weryfikacja klucza -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <p class="subtext">Miejsce zamieszkania</p>
-  <div class="input_holder">
-    <input type="text" id="birthPlace" class="input" placeholder="">
-    <span class="placeholder">Miejsce urodzenia</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="countryOfBirth" class="input" placeholder="">
-    <span class="placeholder">Kraj urodzenia</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="address1" class="input" placeholder="">
-    <span class="placeholder">Ulica i numer domu</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="address2" class="input" placeholder="">
-    <span class="placeholder">Kod pocztowy</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
-  <div class="input_holder">
-    <input type="text" id="city" class="input" placeholder="">
-    <span class="placeholder">Miasto</span>
-    <p class="error">To pole jest wymagane</p>
-  </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
+      authDomain: "cobywatel-keys.firebaseapp.com",
+      projectId: "cobywatel-keys",
+      storageBucket: "cobywatel-keys.firebasestorage.app",
+      messagingSenderId: "872471814880",
+      appId: "1:872471814880:web:4bd0fb7d3ffba583b2e685"
+    };
 
-  <a class="go">wejdź</a>
-</div>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
-    authDomain: "cobywatel-keys.firebaseapp.com",
-    projectId: "cobywatel-keys",
-    storageBucket: "cobywatel-keys.firebasestorage.app",
-    messagingSenderId: "872471814880",
-    appId: "1:872471814880:web:4bd0fb7d3ffba583b2e685"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Jeśli klucz już był użyty na tym urządzeniu, pokaż formularz
-  if (localStorage.getItem('accessGranted') === 'true') {
-    document.getElementById('keyScreen').style.display = 'none';
-    document.getElementById('formScreen').style.display = 'block';
-  }
-
-  // Formatowanie klucza podczas wpisywania
-  document.getElementById('keyInput').addEventListener('input', function() {
-    let val = this.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-    let formatted = '';
-    for (let i = 0; i < val.length && i < 16; i++) {
-      if (i > 0 && i % 4 === 0) formatted += '-';
-      formatted += val[i];
-    }
-    this.value = formatted;
-  });
-
-  window.checkKey = async function() {
-    const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
-    const errorEl = document.getElementById('keyError');
-    const loadingEl = document.getElementById('keyLoading');
-    const btn = document.getElementById('keyBtn');
-
-    if (!keyInput) {
-      errorEl.innerText = 'Wpisz klucz dostępu!';
-      return;
-    }
-
-    errorEl.innerText = '';
-    loadingEl.innerText = 'Weryfikuję klucz...';
-    btn.disabled = true;
-
-    try {
-      const q = query(collection(db, 'keys'), where('key', '==', keyInput));
-      const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        errorEl.innerText = '❌ Nieprawidłowy klucz dostępu!';
-        loadingEl.innerText = '';
-        btn.disabled = false;
-        return;
-      }
-
-      const docSnap = snapshot.docs[0];
-      const data = docSnap.data();
-
-      if (data.used) {
-        errorEl.innerText = '❌ Ten klucz został już użyty!';
-        loadingEl.innerText = '';
-        btn.disabled = false;
-        return;
-      }
-
-      // Oznacz klucz jako użyty
-      await updateDoc(doc(db, 'keys', docSnap.id), { used: true });
-
-      // Zapisz w localStorage że dostęp przyznany
-      localStorage.setItem('accessGranted', 'true');
-
-      // Pokaż formularz
+    // Jeśli klucz już był użyty na tym urządzeniu, pokaż formularz
+    const savedKey = localStorage.getItem('usedKey');
+    if (savedKey && localStorage.getItem('accessGranted') === 'true') {
       document.getElementById('keyScreen').style.display = 'none';
       document.getElementById('formScreen').style.display = 'block';
-
-    } catch (err) {
-      errorEl.innerText = 'Błąd połączenia. Spróbuj ponownie.';
-      loadingEl.innerText = '';
-      btn.disabled = false;
     }
-  }
 
-  // Enter przy wpisywaniu klucza
-  document.getElementById('keyInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') window.checkKey();
-  });
-</script>
+    // Formatowanie klucza podczas wpisywania
+    document.getElementById('keyInput').addEventListener('input', function() {
+      let val = this.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+      let formatted = '';
+      for (let i = 0; i < val.length && i < 16; i++) {
+        if (i > 0 && i % 4 === 0) formatted += '-';
+        formatted += val[i];
+      }
+      this.value = formatted;
+    });
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.querySelector('.upload_grid');
-    const uploadedImg = document.querySelector('.upload_uploaded');
-    const loadingCircle = document.querySelector('.upload_uploading');
+    window.checkKey = async function() {
+      const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
+      const errorEl = document.getElementById('keyError');
+      const loadingEl = document.getElementById('keyLoading');
+      const btn = document.getElementById('keyBtn');
 
-    if (grid) {
-      grid.onclick = (e) => {
-        e.preventDefault();
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (event) => {
-          const file = event.target.files[0];
-          if (file) {
-            loadingCircle.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = (f) => {
-              if (uploadedImg) {
-                uploadedImg.src = f.target.result;
-                uploadedImg.style.display = 'block';
-              }
-              loadingCircle.style.display = 'none';
-              grid.style.display = 'none';
-              localStorage.setItem('userPhoto', f.target.result);
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-        input.click();
-      };
+      if (!keyInput) {
+        errorEl.innerText = 'Wpisz klucz dostępu!';
+        return;
+      }
+
+      errorEl.innerText = '';
+      loadingEl.innerText = 'Weryfikuję klucz...';
+      btn.disabled = true;
+
+      try {
+        const q = query(collection(db, 'keys'), where('key', '==', keyInput));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          errorEl.innerText = '❌ Nieprawidłowy klucz dostępu!';
+          loadingEl.innerText = '';
+          btn.disabled = false;
+          return;
+        }
+
+        const docSnap = snapshot.docs[0];
+        const data = docSnap.data();
+
+        if (data.used) {
+          errorEl.innerText = '❌ Ten klucz został już użyty!';
+          loadingEl.innerText = '';
+          btn.disabled = false;
+          return;
+        }
+
+        // Oznacz klucz jako użyty
+        await updateDoc(doc(db, 'keys', docSnap.id), { used: true });
+
+        // Zapisz klucz i dostęp w localStorage
+        localStorage.setItem('accessGranted', 'true');
+        localStorage.setItem('usedKey', keyInput);
+
+        // Pokaż formularz
+        document.getElementById('keyScreen').style.display = 'none';
+        document.getElementById('formScreen').style.display = 'block';
+
+      } catch (err) {
+        errorEl.innerText = 'Błąd połączenia. Spróbuj ponownie.';
+        loadingEl.innerText = '';
+        btn.disabled = false;
+      }
     }
-  });
-</script>
 
-<script src="assets/index.js"></script>
-<script src="assets/manifest.js"></script>
+    document.getElementById('keyInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.checkKey();
+    });
+  </script>
+
+  <script src="assets/index.js"></script>
+  <script src="assets/manifest.js"></script>
 
 </body>
 </html>
