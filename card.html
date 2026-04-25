@@ -20,7 +20,7 @@
   <div class="top_grid_fixed">
     <div class="action_grid_fixed">
       <img src="assets/images/back_blue.png" class="back_img_fixed" />
-      <p onclick="window.location.href='index.html'" class="back_text_fixed">Wróć</p>
+      <p onclick="window.location.href='home.html'" class="back_text_fixed">Wróć</p>
     </div>
     <p class="title_text_fixed">mDowód</p>
     <img src="assets/images/help.png" class="help_img_fixed" />
@@ -141,7 +141,6 @@
       const rawData = localStorage.getItem('userData');
       let userData = rawData ? JSON.parse(rawData) : {};
 
-      // Zdjęcie
       const photoDiv = document.getElementById('photo_display');
       if (photoDiv && userData.image) {
         photoDiv.style.backgroundImage = `url(${userData.image})`;
@@ -149,7 +148,6 @@
         photoDiv.style.backgroundPosition = 'center';
       }
 
-      // Dane osobowe
       if (userData.name)    document.getElementById('name').innerText    = userData.name.toUpperCase();
       if (userData.surname) document.getElementById('surname').innerText = userData.surname.toUpperCase();
       if (userData.pesel)   document.getElementById('pesel').innerText   = userData.pesel;
@@ -158,7 +156,6 @@
           `${userData.day}.${userData.month}.${userData.year}`;
       }
 
-      // Losowa seria i numer (raz generowana, potem z localStorage)
       function generateSeriesNumber() {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const s = letters[Math.floor(Math.random() * 26)] +
@@ -174,7 +171,6 @@
       }
       document.getElementById('seriesAndNumber').innerText = userData.seriesNumber;
 
-      // Daty wydania i ważności
       function formatDate(date) {
         const d = String(date.getDate()).padStart(2, '0');
         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -184,16 +180,18 @@
 
       if (!userData.givenDate) {
         const issued = new Date();
+        const yearsAgo = Math.floor(Math.random() * 9) + 1;
+        issued.setFullYear(issued.getFullYear() - yearsAgo);
         const expiry = new Date(issued);
         expiry.setFullYear(expiry.getFullYear() + 10);
         userData.givenDate  = formatDate(issued);
         userData.expiryDate = formatDate(expiry);
         localStorage.setItem('userData', JSON.stringify(userData));
       }
+
       document.getElementById('givenDate').innerText  = userData.givenDate;
       document.getElementById('expiryDate').innerText = userData.expiryDate;
 
-      // Przycisk Kopiuj
       document.getElementById('copyBtn').addEventListener('click', () => {
         const text = document.getElementById('seriesAndNumber').innerText;
         navigator.clipboard.writeText(text).then(() => {
@@ -210,7 +208,6 @@
         });
       });
 
-      // Zegar
       function updateTime() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('pl-PL', {
