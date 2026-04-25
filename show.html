@@ -85,33 +85,20 @@
     <script src="assets/manifest.js"></script>
     <script src="assets/cache.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Pobieramy paczkę danych z pamięci
-    const rawData = localStorage.getItem('userData');
-    
-    if (rawData) {
-        const data = JSON.parse(rawData);
-
-        // 1. SZUKAMY MIEJSCA NA ZDJĘCIE
-        // Jeśli na tej stronie masz jakiś obrazek, któremu nadasz klasę "user-photo"
-        const photoDisplay = document.querySelector('.qr_image'); // Na razie podmieniam kod QR na zdjęcie dla testu
-        if (photoDisplay && data.image) {
-            photoDisplay.src = data.image;
-        }
-
-        // 2. SZUKAMY MIEJSCA NA TEKST
-        // Podmieniamy np. tytuł strony na imię i nazwisko
-        const titleDisplay = document.querySelector('.show_title');
-        if (titleDisplay && data.name) {
-            titleDisplay.innerText = data.name + " " + (data.surname || "");
-        }
-        
-        // Możesz dodać więcej pól, np.:
-        // console.log("Dane użytkownika:", data);
+document.addEventListener('DOMContentLoaded', function() {
+    // Odczytujemy zdjęcie
+    const savedPhoto = localStorage.getItem('saved_image'); // to z poprzedniego kroku
+    if (savedPhoto) {
+        // Tu podaj klasę lub ID obrazka na stronie show.html, gdzie ma być foto
+        const displayImg = document.querySelector('.photo_class_na_nowej_stronie'); 
+        if(displayImg) displayImg.src = savedPhoto;
     }
+
+    // Odczytujemy tekst
+    const nameDisplay = document.querySelector('.name_class_na_nowej_stronie');
+    if(nameDisplay) nameDisplay.innerText = localStorage.getItem('user_name');
 });
 </script>
 
   </body>
 </html>
-
