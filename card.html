@@ -16,6 +16,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
 </head>
 <body>
+
   <div class="top_grid_fixed">
     <div class="action_grid_fixed">
       <img src="assets/images/back_blue.png" class="back_img_fixed" />
@@ -27,23 +28,23 @@
 
   <div class="bottom_bar">
     <div class="bottom_bar_grid">
-      <div class="bottom_element_grid">
+      <div class="bottom_element_grid" send="home">
         <div class="bottom_element_image home"></div>
         <p class="bottom_element_text">Pulpit</p>
       </div>
-      <div class="bottom_element_grid">
+      <div class="bottom_element_grid" send="documents">
         <div class="bottom_element_image documents_open"></div>
         <p class="bottom_element_text open">Dokumenty</p>
       </div>
-      <div class="bottom_element_grid">
+      <div class="bottom_element_grid" send="services">
         <div class="bottom_element_image services"></div>
         <p class="bottom_element_text">Usługi</p>
       </div>
-      <div class="bottom_element_grid">
+      <div class="bottom_element_grid" send="qr">
         <div class="bottom_element_image qr"></div>
         <p class="bottom_element_text">Kod QR</p>
       </div>
-      <div class="bottom_element_grid">
+      <div class="bottom_element_grid" send="more">
         <div class="bottom_element_image more"></div>
         <p class="bottom_element_text">Więcej</p>
       </div>
@@ -52,11 +53,11 @@
 
   <div class="container">
     <p class="time_text" id="time">Czas: --:--:-- --.--.----</p>
+
     <div class="id_image_data">
       <img draggable="false" class="id_image" src="assets/images/plate.png" />
       <div class="inset"></div>
       <div class="id_own_image" id="photo_display"></div>
-      
       <img draggable="false" src="assets/images/flag.webp" class="flag_video" />
       <img draggable="false" src="assets/images/eagle.gif" class="eagle_video" />
       <p class="eagle_text">Rzeczpospolita<br />Polska</p>
@@ -96,19 +97,19 @@
 
     <div class="under_container">
       <div class="under_grid">
-        <div class="under_icon">
+        <div class="under_icon" onclick="window.location.href='home.html'" style="cursor:pointer;">
           <div class="under_image_circle"><img class="under_image" src="assets/images/confirm.png" /></div>
           <p class="under_text">Potwierdź swoje dane</p>
         </div>
-        <div class="under_icon">
+        <div class="under_icon" onclick="window.location.href='document.html'" style="cursor:pointer;">
           <div class="under_image_circle"><img class="under_image" src="assets/images/card.png" /></div>
           <p class="under_text">Dane dowodu osobistego</p>
         </div>
-        <div class="under_icon">
+        <div class="under_icon" onclick="window.location.href='pesel.html'" style="cursor:pointer;">
           <div class="under_image_circle"><img class="under_image" src="assets/images/lock.png" /></div>
           <p class="under_text">Zastrzeż PESEL</p>
         </div>
-        <div class="under_icon">
+        <div class="under_icon" onclick="window.location.href='shortcuts.html'" style="cursor:pointer;">
           <div class="under_image_circle"><img class="under_image" src="assets/images/more.png" /></div>
           <p class="under_text">Pozostałe skróty</p>
         </div>
@@ -118,62 +119,112 @@
     <div class="confirm_info">
       <div class="confirm_box">
         <p class="box_top">Seria i numer</p>
-        <p class="box_value box_highlight" id="seriesAndNumber">ABC 123456</p>
-        <button class="main_button">Kopiuj</button>
+        <p class="box_value box_highlight" id="seriesAndNumber">---</p>
+        <button class="main_button" id="copyBtn">Kopiuj</button>
       </div>
       <div class="confirm_box">
         <p class="box_top">Termin ważności</p>
-        <p class="box_value" id="expiryDate">23.04.2034</p>
+        <p class="box_value" id="expiryDate">--.--.----</p>
       </div>
       <div class="confirm_box">
         <p class="box_top">Data wydania</p>
-        <p class="box_value" id="givenDate">23.04.2024</p>
+        <p class="box_value" id="givenDate">--.--.----</p>
       </div>
     </div>
   </div>
 
   <script src="assets/bar.js"></script>
   <script src="assets/card.js"></script>
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const rawData = localStorage.getItem('userData');
-        
-        if (rawData) {
-            const data = JSON.parse(rawData);
 
-            // Wyświetlanie zdjęcia
-            const photoDiv = document.getElementById('photo_display');
-            if (photoDiv && data.image) {
-                photoDiv.style.backgroundImage = `url(${data.image})`;
-                photoDiv.style.backgroundSize = 'cover';
-                photoDiv.style.backgroundPosition = 'center';
-            }
+      const rawData = localStorage.getItem('userData');
+      let userData = rawData ? JSON.parse(rawData) : {};
 
-            // Mapowanie danych do pól na stronie
-            if(data.name) document.getElementById('name').innerText = data.name.toUpperCase();
-            if(data.surname) document.getElementById('surname').innerText = data.surname.toUpperCase();
-            if(data.pesel) document.getElementById('pesel').innerText = data.pesel;
-            
-            // Formatowanie daty urodzenia
-            if(data.day && data.month && data.year) {
-                document.getElementById('birthday').innerText = `${data.day}.${data.month}.${data.year}`;
-            }
-        }
+      // Zdjęcie
+      const photoDiv = document.getElementById('photo_display');
+      if (photoDiv && userData.image) {
+        photoDiv.style.backgroundImage = `url(${userData.image})`;
+        photoDiv.style.backgroundSize = 'cover';
+        photoDiv.style.backgroundPosition = 'center';
+      }
 
-        // Zegar i aktualizacja
-        function updateTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const dateStr = now.toLocaleDateString('pl-PL');
-            
-            const timeEl = document.getElementById('time');
-            if (timeEl) timeEl.innerText = `Czas: ${timeStr} ${dateStr}`;
-        }
+      // Dane osobowe
+      if (userData.name)    document.getElementById('name').innerText    = userData.name.toUpperCase();
+      if (userData.surname) document.getElementById('surname').innerText = userData.surname.toUpperCase();
+      if (userData.pesel)   document.getElementById('pesel').innerText   = userData.pesel;
+      if (userData.day && userData.month && userData.year) {
+        document.getElementById('birthday').innerText =
+          `${userData.day}.${userData.month}.${userData.year}`;
+      }
 
-        setInterval(updateTime, 1000);
-        updateTime();
+      // Losowa seria i numer (raz generowana, potem z localStorage)
+      function generateSeriesNumber() {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const s = letters[Math.floor(Math.random() * 26)] +
+                  letters[Math.floor(Math.random() * 26)] +
+                  letters[Math.floor(Math.random() * 26)];
+        const n = String(Math.floor(Math.random() * 900000) + 100000);
+        return s + ' ' + n;
+      }
+
+      if (!userData.seriesNumber) {
+        userData.seriesNumber = generateSeriesNumber();
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+      document.getElementById('seriesAndNumber').innerText = userData.seriesNumber;
+
+      // Daty wydania i ważności
+      function formatDate(date) {
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}.${m}.${y}`;
+      }
+
+      if (!userData.givenDate) {
+        const issued = new Date();
+        const expiry = new Date(issued);
+        expiry.setFullYear(expiry.getFullYear() + 10);
+        userData.givenDate  = formatDate(issued);
+        userData.expiryDate = formatDate(expiry);
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+      document.getElementById('givenDate').innerText  = userData.givenDate;
+      document.getElementById('expiryDate').innerText = userData.expiryDate;
+
+      // Przycisk Kopiuj
+      document.getElementById('copyBtn').addEventListener('click', () => {
+        const text = document.getElementById('seriesAndNumber').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('copyBtn');
+          btn.innerText = 'Skopiowano!';
+          setTimeout(() => { btn.innerText = 'Kopiuj'; }, 2000);
+        }).catch(() => {
+          const el = document.createElement('textarea');
+          el.value = text;
+          document.body.appendChild(el);
+          el.select();
+          document.execCommand('copy');
+          document.body.removeChild(el);
+        });
+      });
+
+      // Zegar
+      function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('pl-PL', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        const dateStr = now.toLocaleDateString('pl-PL');
+        const timeEl = document.getElementById('time');
+        if (timeEl) timeEl.innerText = `Czas: ${timeStr} ${dateStr}`;
+      }
+      setInterval(updateTime, 1000);
+      updateTime();
+
     });
   </script>
+
 </body>
 </html>
