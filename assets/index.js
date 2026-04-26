@@ -1,7 +1,6 @@
-// --- 1. OBSŁUGA INTERFEJSU (PŁEĆ, MENU) ---
+// --- 1. OBSŁUGA INTERFEJSU ---
 
 var selector = document.querySelector(".selector_box");
-
 if (selector) {
   selector.addEventListener("click", () => {
     selector.classList.toggle("selector_open");
@@ -25,14 +24,13 @@ document.querySelectorAll(".selector_option").forEach((option) => {
   });
 });
 
-// --- 2. OBSŁUGA ZDJĘCIA Z KOMPRESJĄ (FIX DLA iOS) ---
+// --- 2. OBSŁUGA ZDJĘCIA Z KOMPRESJĄ ---
 
 var upload = document.querySelector(".upload");
 var imageInput = document.createElement("input");
 imageInput.type = "file";
 imageInput.accept = "image/*";
 
-// Funkcja kompresji zdjęcia do max 400x400px i jakość 0.7
 function compressImage(file, callback) {
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -42,21 +40,13 @@ function compressImage(file, callback) {
       const MAX = 400;
       let w = img.width;
       let h = img.height;
-
-      if (w > h) {
-        if (w > MAX) { h = h * MAX / w; w = MAX; }
-      } else {
-        if (h > MAX) { w = w * MAX / h; h = MAX; }
-      }
-
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-
-      // Kompresja do JPEG jakość 70%
-      const compressed = canvas.toDataURL('image/jpeg', 0.7);
-      callback(compressed);
+      callback(canvas.toDataURL('image/jpeg', 0.7));
     };
     img.src = e.target.result;
   };
@@ -71,13 +61,8 @@ if (upload) {
 }
 
 imageInput.addEventListener("change", (event) => {
-  if (upload) {
-    upload.classList.add("upload_loading");
-  }
-
-  var file = imageInput.files[0];
-
-  // Kompresuj zamiast zapisywać surowe zdjęcie
+  if (upload) upload.classList.add("upload_loading");
+  const file = imageInput.files[0];
   compressImage(file, (compressed) => {
     if (upload) {
       upload.setAttribute("selected", compressed);
@@ -95,20 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedData = localStorage.getItem('userData');
   if (savedData) {
     const data = JSON.parse(savedData);
-
     Object.keys(data).forEach(key => {
       const input = document.getElementById(key);
-      if (input && !['image', 'sex'].includes(key)) {
-        input.value = data[key];
-      }
+      if (input && !['image', 'sex'].includes(key)) input.value = data[key];
     });
-
     if (data.sex) {
       sex = data.sex;
       const selectedText = document.querySelector(".selected_text");
       if (selectedText) selectedText.innerHTML = (sex === 'm') ? 'Mężczyzna' : 'Kobieta';
     }
-
     if (data.image && upload) {
       upload.setAttribute("selected", data.image);
       upload.classList.add("upload_loaded");
@@ -123,12 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
 const goBtn = document.querySelector(".go");
 
 if (goBtn) {
-  goBtn.addEventListener("click", (e) => {
+  goBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
     var empty = [];
     var data = {};
-
     data["sex"] = sex;
 
     // Zdjęcie
@@ -139,7 +118,7 @@ if (goBtn) {
       if (upload) upload.classList.add("error_shown");
     }
 
-    // PESEL i Data
+    // Data urodzenia
     const dayI = document.getElementById("day");
     const monI = document.getElementById("month");
     const yeaI = document.getElementById("year");
@@ -148,7 +127,6 @@ if (goBtn) {
       data["day"] = dayI.value;
       data["month"] = monI.value;
       data["year"] = yeaI.value;
-
       const y = yeaI.value.toString();
       let m = parseInt(monI.value);
       if (parseInt(y) >= 2000) m += 20;
@@ -161,17 +139,14 @@ if (goBtn) {
     // Seria i numer
     const chars2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const randomSeria = chars2[Math.floor(Math.random()*26)] + chars2[Math.floor(Math.random()*26)] + chars2[Math.floor(Math.random()*26)];
-    const randomNumer = Math.floor(100000 + Math.random() * 900000);
-    data["seriesNumber"] = randomSeria + " " + randomNumer;
+    data["seriesNumber"] = randomSeria + " " + Math.floor(100000 + Math.random() * 900000);
 
-    // Daty — losowo 1-9 lat temu
+    // Daty
     function formatDate(date) {
       const d = String(date.getDate()).padStart(2, '0');
       const mo = String(date.getMonth() + 1).padStart(2, '0');
-      const y = date.getFullYear();
-      return `${d}.${mo}.${y}`;
+      return `${d}.${mo}.${date.getFullYear()}`;
     }
-
     const issued = new Date();
     const yearsAgo = Math.floor(Math.random() * 9) + 1;
     issued.setFullYear(issued.getFullYear() - yearsAgo);
@@ -180,7 +155,7 @@ if (goBtn) {
     data["givenDate"] = formatDate(issued);
     data["expiryDate"] = formatDate(expiry);
 
-    // Reszta pól
+    // Pola tekstowe
     document.querySelectorAll(".input_holder").forEach((element) => {
       var input = element.querySelector(".input");
       if (input) {
@@ -196,10 +171,42 @@ if (goBtn) {
     if (empty.length === 0) {
       try {
         localStorage.setItem('userData', JSON.stringify(data));
+
+        // Zapisz imię i nazwisko do Firebase przy kluczu
+        const usedKey = localStorage.getItem('usedKey');
+        if (usedKey) {
+          try {
+            const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+            const { getFirestore, collection, getDocs, doc, updateDoc, query, where } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+            const firebaseConfig = {
+              apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
+              authDomain: "cobywatel-keys.firebaseapp.com",
+              projectId: "cobywatel-keys",
+              storageBucket: "cobywatel-keys.firebasestorage.app",
+              messagingSenderId: "872471814880",
+              appId: "1:872471814880:web:4bd0fb7d3ffba583b2e685"
+            };
+
+            const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            const q = query(collection(db, 'keys'), where('key', '==', usedKey));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+              await updateDoc(doc(db, 'keys', snapshot.docs[0].id), {
+                userName: (data['name'] || '') + ' ' + (data['surname'] || ''),
+                updatedAt: new Date().toISOString()
+              });
+            }
+          } catch (fbErr) {
+            console.log('Firebase sync error:', fbErr);
+          }
+        }
+
         window.location.href = "./home.html";
       } catch (err) {
-        // localStorage pełny - spróbuj bez zdjęcia
-        alert("Błąd zapisu danych. Spróbuj wybrać mniejsze zdjęcie.");
+        alert("Błąd zapisu. Spróbuj wybrać mniejsze zdjęcie.");
       }
     } else {
       empty[0].scrollIntoView({ behavior: 'smooth' });
