@@ -14,8 +14,52 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    /* Baner konserwacji */
+    .maintenance-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #1a56db, #0d3b9e);
+      color: white;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      animation: slideDown 0.4s ease;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+    .maintenance-banner b { display: block; font-size: 14px; margin-bottom: 2px; }
+    .maintenance-close {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 24px; height: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 24px;
+      text-align: center;
+      padding: 0;
+      width: auto;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Baner konserwacji (pokazuje się jeśli admin włączył) -->
+  <div class="maintenance-banner" id="maintenanceBanner" style="display:none;">
+    <b>🔧 Trwa aktualizacja aplikacji</b>
+    Aplikacja może nie działać prawidłowo ponieważ ją ulepszam. Pozdrawiam Simonxx^_^
+    <button class="maintenance-close" onclick="document.getElementById('maintenanceBanner').style.display='none'">✕</button>
+  </div>
 
   <div class="bottom_bar">
     <div class="bottom_bar_grid">
@@ -47,13 +91,11 @@
       <img src="assets/images/logo_rounded.png" class="top_image">
       <img src="assets/images/bell.png" class="top_image right">
     </div>
-
     <div class="card_grid">
       <p class="title">Dokumenty</p>
       <button class="main_button">Dodaj</button>
       <button class="main_button all_documents" onclick="sendTo('documents')">Wszystkie</button>
     </div>
-
     <div class="card" onclick="sendTo('card', null, 'home')">
       <img class="background" src="assets/images/card_background.png">
       <img class="human" src="assets/images/human.png">
@@ -62,12 +104,10 @@
         <img class="arrow" src="assets/images/right_arrow_sharp.png">
       </div>
     </div>
-
     <div class="card_below_grid">
       <p class="title">Usługi</p>
       <button class="main_button all_services" onclick="sendTo('services')">Wszystkie</button>
     </div>
-
     <div class="services_grid">
       <div class="service_box">
         <img class="service_box_icon" src="assets/images/safe_in_web.png">
@@ -100,7 +140,6 @@
   <script src="assets/manifest.js"></script>
   <script src="assets/cache.js"></script>
 
-  <!-- Firebase: sprawdzanie kicked, wygaśnięcia i lastSeen -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -117,8 +156,24 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    async function checkIfKicked() {
+    async function checkStatus() {
       const usedKey = localStorage.getItem('usedKey');
+
+      // Sprawdź tryb konserwacji (osobny dokument w Firebase)
+      try {
+        const settingsSnap = await getDocs(collection(db, 'settings'));
+        settingsSnap.forEach(d => {
+          if (d.id === 'maintenance') {
+            const banner = document.getElementById('maintenanceBanner');
+            if (d.data().enabled === true) {
+              banner.style.display = 'block';
+            } else {
+              banner.style.display = 'none';
+            }
+          }
+        });
+      } catch(e) {}
+
       if (!usedKey) return;
 
       try {
@@ -129,7 +184,7 @@
           const docSnap = snapshot.docs[0];
           const data = docSnap.data();
 
-          // Zapisz lastSeen — admin widzi że jesteś online
+          // Aktualizuj lastSeen
           await updateDoc(doc(db, 'keys', docSnap.id), {
             lastSeen: new Date().toISOString()
           });
@@ -149,13 +204,12 @@
           }
         }
       } catch (e) {
-        console.log('Błąd sprawdzania statusu:', e);
+        console.log('Błąd:', e);
       }
     }
 
-    // Sprawdzaj co 15 sekund
-    checkIfKicked();
-    setInterval(checkIfKicked, 15000);
+    checkStatus();
+    setInterval(checkStatus, 15000);
   </script>
 
 </body>
