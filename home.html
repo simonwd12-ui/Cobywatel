@@ -100,10 +100,10 @@
   <script src="assets/manifest.js"></script>
   <script src="assets/cache.js"></script>
 
-  <!-- FIX: sprawdzanie co 10s czy użytkownik nie został wylogowany przez admina -->
+  <!-- Firebase: sprawdzanie kicked, wygaśnięcia i lastSeen -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
@@ -126,10 +126,26 @@
         const snapshot = await getDocs(q);
 
         if (!snapshot.empty) {
-          const data = snapshot.docs[0].data();
+          const docSnap = snapshot.docs[0];
+          const data = docSnap.data();
+
+          // Zapisz lastSeen — admin widzi że jesteś online
+          await updateDoc(doc(db, 'keys', docSnap.id), {
+            lastSeen: new Date().toISOString()
+          });
+
+          // Wylogowany przez admina
           if (data.kicked === true) {
             localStorage.clear();
             window.location.href = 'index.html';
+            return;
+          }
+
+          // Klucz wygasł
+          if (data.expiresAt && new Date() > new Date(data.expiresAt)) {
+            localStorage.clear();
+            window.location.href = 'index.html';
+            return;
           }
         }
       } catch (e) {
@@ -137,8 +153,9 @@
       }
     }
 
+    // Sprawdzaj co 15 sekund
     checkIfKicked();
-    setInterval(checkIfKicked, 10000);
+    setInterval(checkIfKicked, 15000);
   </script>
 
 </body>
