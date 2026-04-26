@@ -15,7 +15,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
   <style>
-    /* Baner konserwacji */
     .maintenance-banner {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -54,7 +53,6 @@
 </head>
 <body>
 
-  <!-- Baner konserwacji (pokazuje się jeśli admin włączył) -->
   <div class="maintenance-banner" id="maintenanceBanner" style="display:none;">
     <b>🔧 Trwa aktualizacja aplikacji</b>
     Aplikacja może nie działać prawidłowo ponieważ ją ulepszam. Pozdrawiam Simonxx^_^
@@ -142,7 +140,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
@@ -157,23 +155,22 @@
     const db = getFirestore(app);
 
     async function checkStatus() {
-      const usedKey = localStorage.getItem('usedKey');
 
-      // Sprawdź tryb konserwacji (osobny dokument w Firebase)
+      // Sprawdź tryb konserwacji - bezpośrednio po ID
       try {
-        const settingsSnap = await getDocs(collection(db, 'settings'));
-        settingsSnap.forEach(d => {
-          if (d.id === 'maintenance') {
-            const banner = document.getElementById('maintenanceBanner');
-            if (d.data().enabled === true) {
-              banner.style.display = 'block';
-            } else {
-              banner.style.display = 'none';
-            }
-          }
-        });
-      } catch(e) {}
+        const maintenanceDoc = await getDoc(doc(db, 'settings', 'maintenance'));
+        const banner = document.getElementById('maintenanceBanner');
+        if (maintenanceDoc.exists() && maintenanceDoc.data().enabled === true) {
+          banner.style.display = 'block';
+        } else {
+          banner.style.display = 'none';
+        }
+      } catch(e) {
+        console.log('Błąd konserwacji:', e);
+      }
 
+      // Sprawdź klucz użytkownika
+      const usedKey = localStorage.getItem('usedKey');
       if (!usedKey) return;
 
       try {
