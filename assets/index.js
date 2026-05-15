@@ -1,5 +1,4 @@
-// --- 1. OBSŁUGA INTERFEJSU ---
-
+// --- 1. OBSŁUGA INTERFEJSU (PŁEĆ, MENU) ---
 var selector = document.querySelector(".selector_box");
 if (selector) {
   selector.addEventListener("click", () => {
@@ -15,7 +14,6 @@ document.querySelectorAll(".date_input").forEach((element) => {
 });
 
 var sex = "m";
-
 document.querySelectorAll(".selector_option").forEach((option) => {
   option.addEventListener("click", () => {
     sex = option.id;
@@ -24,34 +22,11 @@ document.querySelectorAll(".selector_option").forEach((option) => {
   });
 });
 
-// --- 2. OBSŁUGA ZDJĘCIA Z KOMPRESJĄ ---
-
+// --- 2. OBSŁUGA ZDJĘCIA (SZYBKIE PRZETWARZANIE) ---
 var upload = document.querySelector(".upload");
 var imageInput = document.createElement("input");
 imageInput.type = "file";
 imageInput.accept = "image/*";
-
-function compressImage(file, callback) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const MAX = 400;
-      let w = img.width;
-      let h = img.height;
-      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
-      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      callback(canvas.toDataURL('image/jpeg', 0.7));
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
 
 if (upload) {
   upload.addEventListener("click", () => {
@@ -61,28 +36,34 @@ if (upload) {
 }
 
 imageInput.addEventListener("change", (event) => {
-  if (upload) upload.classList.add("upload_loading");
-  const file = imageInput.files[0];
-  compressImage(file, (compressed) => {
+  if (upload) {
+    upload.classList.add("upload_loading");
+  }
+  var file = imageInput.files[0];
+  var reader = new FileReader();
+  reader.onload = (e) => {
+    var url = e.target.result;
     if (upload) {
-      upload.setAttribute("selected", compressed);
+      upload.setAttribute("selected", url);
       upload.classList.remove("upload_loading");
       upload.classList.add("upload_loaded");
       const imgPreview = upload.querySelector(".upload_uploaded");
-      if (imgPreview) imgPreview.src = compressed;
+      if (imgPreview) imgPreview.src = url;
     }
-  });
+  };
+  reader.readAsDataURL(file);
 });
 
-// --- 3. PRZYWRACANIE DANYCH ---
-
+// --- 3. PRZYWRACANIE DANYCH (ŻEBY NIE ZNIKAŁY PO ZAMKNIĘCIU) ---
 document.addEventListener('DOMContentLoaded', () => {
   const savedData = localStorage.getItem('userData');
   if (savedData) {
     const data = JSON.parse(savedData);
     Object.keys(data).forEach(key => {
       const input = document.getElementById(key);
-      if (input && !['image', 'sex'].includes(key)) input.value = data[key];
+      if (input && !['image', 'sex'].includes(key)) {
+        input.value = data[key];
+      }
     });
     if (data.sex) {
       sex = data.sex;
@@ -98,14 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// --- 4. PRZYCISK "WEJDŹ" ---
-
+// --- 4. PRZYCISK "WEJDŹ" + GENERATOR LOSOWEJ SERII I PESEL ---
 const goBtn = document.querySelector(".go");
-
 if (goBtn) {
-  goBtn.addEventListener("click", async (e) => {
+  goBtn.addEventListener("click", (e) => {
     e.preventDefault();
-
     var empty = [];
     var data = {};
     data["sex"] = sex;
@@ -115,15 +93,14 @@ if (goBtn) {
       data["image"] = upload.getAttribute("selected");
     } else {
       empty.push(upload);
-      if (upload) upload.classList.add("error_shown");
+      upload.classList.add("error_shown");
     }
 
-    // Data urodzenia
+    // PESEL i Data
     const dayI = document.getElementById("day");
     const monI = document.getElementById("month");
     const yeaI = document.getElementById("year");
-
-    if (dayI && monI && yeaI && dayI.value && monI.value && yeaI.value) {
+    if (dayI.value && monI.value && yeaI.value) {
       data["day"] = dayI.value;
       data["month"] = monI.value;
       data["year"] = yeaI.value;
@@ -133,29 +110,25 @@ if (goBtn) {
       const randomP = Math.floor(10000 + Math.random() * 90000);
       data["pesel"] = y.slice(-2) + m.toString().padStart(2, '0') + dayI.value.padStart(2, '0') + randomP;
     } else {
-      if (dayI) empty.push(dayI);
+      empty.push(dayI);
     }
 
-    // Seria i numer
-    const chars2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const randomSeria = chars2[Math.floor(Math.random()*26)] + chars2[Math.floor(Math.random()*26)] + chars2[Math.floor(Math.random()*26)];
-    data["seriesNumber"] = randomSeria + " " + Math.floor(100000 + Math.random() * 900000);
+    // Generator losowej serii i numeru
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const randomSeria = chars[Math.floor(Math.random()*26)] + chars[Math.floor(Math.random()*26)] + chars[Math.floor(Math.random()*26)];
+    const randomNumer = Math.floor(100000 + Math.random() * 900000);
+    data["seriesAndNumber"] = randomSeria + " " + randomNumer;
 
-    // Daty
-    function formatDate(date) {
-      const d = String(date.getDate()).padStart(2, '0');
-      const mo = String(date.getMonth() + 1).padStart(2, '0');
-      return `${d}.${mo}.${date.getFullYear()}`;
-    }
-    const issued = new Date();
-    const yearsAgo = Math.floor(Math.random() * 9) + 1;
-    issued.setFullYear(issued.getFullYear() - yearsAgo);
-    const expiry = new Date(issued);
-    expiry.setFullYear(expiry.getFullYear() + 10);
-    data["givenDate"] = formatDate(issued);
-    data["expiryDate"] = formatDate(expiry);
+    // Automatyczne daty wydania
+    const today = new Date();
+    const issueDate = new Date();
+    issueDate.setFullYear(today.getFullYear() - 1);
+    const expiryDate = new Date(issueDate);
+    expiryDate.setFullYear(issueDate.getFullYear() + 10);
+    data["givenDate"] = issueDate.toLocaleDateString('pl-PL');
+    data["expiryDate"] = expiryDate.toLocaleDateString('pl-PL');
 
-    // Pola tekstowe
+    // Zbieranie reszty (imię, nazwisko itd.)
     document.querySelectorAll(".input_holder").forEach((element) => {
       var input = element.querySelector(".input");
       if (input) {
@@ -169,45 +142,8 @@ if (goBtn) {
     });
 
     if (empty.length === 0) {
-      try {
-        localStorage.setItem('userData', JSON.stringify(data));
-
-        // Zapisz imię i nazwisko do Firebase przy kluczu
-        const usedKey = localStorage.getItem('usedKey');
-        if (usedKey) {
-          try {
-            const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-            const { getFirestore, collection, getDocs, doc, updateDoc, query, where } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-
-            const firebaseConfig = {
-              apiKey: "AIzaSyBmk6wS524JWhphQ60yK8kbzO6CnoVzyRw",
-              authDomain: "cobywatel-keys.firebaseapp.com",
-              projectId: "cobywatel-keys",
-              storageBucket: "cobywatel-keys.firebasestorage.app",
-              messagingSenderId: "872471814880",
-              appId: "1:872471814880:web:4bd0fb7d3ffba583b2e685"
-            };
-
-            const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-
-            const q = query(collection(db, 'keys'), where('key', '==', usedKey));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) {
-              await updateDoc(doc(db, 'keys', snapshot.docs[0].id), {
-                userName: (data['name'] || '') + ' ' + (data['surname'] || ''),
-                updatedAt: new Date().toISOString()
-              });
-            }
-          } catch (fbErr) {
-            console.log('Firebase sync error:', fbErr);
-          }
-        }
-
-        window.location.href = "./home.html";
-      } catch (err) {
-        alert("Błąd zapisu. Spróbuj wybrać mniejsze zdjęcie.");
-      }
+      localStorage.setItem('userData', JSON.stringify(data));
+      window.location.href = "./card.html"; // ← TU JEST ZMIANA
     } else {
       empty[0].scrollIntoView({ behavior: 'smooth' });
     }
